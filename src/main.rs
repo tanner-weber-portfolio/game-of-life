@@ -1,8 +1,6 @@
 /* File: main.rs
- *
  * Author: Tanner Weber, tannerw@pdx.edu
- *
- * Date: 2026
+ * Date: 2 February 2026
  */
 
 //! John Conway's Game of Life on the Microbit V2
@@ -62,7 +60,7 @@ fn init() -> ! {
     }
 }
 
-/// Returns a 5 x 5 array with each cell being 1 or 0.
+/// Returns a 5x5 array with each cell being 1 or 0 randomly.
 fn get_random_led_board(seed: u128) -> [[u8; 5]; 5] {
     let mut rng = nanorand::Pcg64::new_seed(seed);
     let mut leds: [[u8; 5]; 5] = [
@@ -82,7 +80,7 @@ fn get_random_led_board(seed: u128) -> [[u8; 5]; 5] {
     leds
 }
 
-/// Turns each cell in a 5 x 5 from a 0 to 1 or vice versa.
+/// Turns each cell in a 5x5 array from a 0 to 1 or vice versa.
 fn flip_led_board(mut leds: [[u8; 5]; 5]) -> [[u8; 5]; 5] {
     for row in &mut leds {
         for cell in row {
