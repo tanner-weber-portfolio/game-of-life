@@ -20,15 +20,18 @@ use rtt_target::rprintln;
 const FRAMETIME_MS: u32 = 100;
 const RESTART_FRAMES_COUNT: u32 = 5;
 const BUTTON_DELAY_FRAMES_COUNT: u32 = 5;
+const FIRST_ROUND_SEED: u128 = 1;
 
 #[entry]
 fn init() -> ! {
     rtt_target::rtt_init_print!();
+
     let board = microbit::Board::take().unwrap();
-    let seed: u128 = 1;
+    let mut rng = microbit::hal::rng::Rng::new(board.RNG);
+    let mut rng_buffer: [u8; 16] = [0; 16];
     let mut timer = Timer::new(board.TIMER0);
     let mut display = Display::new(board.display_pins);
-    let mut leds = get_random_led_board(seed);
+    let mut leds = get_random_led_board(FIRST_ROUND_SEED);
     let mut button_a = board.buttons.button_a;
     let mut button_b = board.buttons.button_b;
     let mut button_b_delay: u32 = 0;
@@ -36,14 +39,17 @@ fn init() -> ! {
     loop {
         rprintln!("        Board {:?}", leds);
 
+        rng.random(&mut rng_buffer);
+        let rng_num = u128::from_le_bytes(rng_buffer);
+
         if life::done(&leds) {
             rprintln!("DONE");
             timer.delay_ms(RESTART_FRAMES_COUNT * FRAMETIME_MS);
-            leds = get_random_led_board(seed);
+            leds = get_random_led_board(rng_num);
             continue;
         }
         if button_a.is_low().unwrap() {
-            leds = get_random_led_board(seed);
+            leds = get_random_led_board(rng_num);
         }
         if button_b.is_low().unwrap() {
             if button_b_delay == 0 {
