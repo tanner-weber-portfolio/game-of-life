@@ -37,8 +37,6 @@ fn init() -> ! {
     let mut button_b_delay: u32 = 0;
 
     loop {
-        rprintln!("        Board {:?}", leds);
-
         rng.random(&mut rng_buffer);
         let rng_num = u128::from_le_bytes(rng_buffer);
 
@@ -49,19 +47,22 @@ fn init() -> ! {
             continue;
         }
         if button_a.is_low().unwrap() {
+            rprintln!("A Pressed");
             leds = get_random_led_board(rng_num);
         }
         if button_b.is_low().unwrap() {
+            rprintln!("B Pressed");
             if button_b_delay == 0 {
                 leds = flip_led_board(leds);
                 rprintln!("FLIPPED Board {:?}", leds);
+                button_b_delay = BUTTON_DELAY_FRAMES_COUNT + 1;
             }
-            button_b_delay = BUTTON_DELAY_FRAMES_COUNT + 1;
         }
         button_b_delay = button_b_delay.saturating_sub(1);
 
-        life::life(&mut leds);
+        rprintln!("        Board {:?}", leds);
         display.show(&mut timer, leds, FRAMETIME_MS);
+        life::life(&mut leds);
         timer.delay_ms(FRAMETIME_MS);
     }
 }
@@ -83,6 +84,7 @@ fn get_random_led_board(seed: u128) -> [[u8; 5]; 5] {
         }
     }
 
+    rprintln!("New board generated");
     leds
 }
 
@@ -98,5 +100,6 @@ fn flip_led_board(mut leds: [[u8; 5]; 5]) -> [[u8; 5]; 5] {
         }
     }
 
+    rprintln!("Leds flipped");
     leds
 }
